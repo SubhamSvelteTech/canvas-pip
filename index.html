@@ -22,6 +22,8 @@
 
     <button id="enterPip" onclick="drawVideoInCanvas()">enter in canvas</button>
 
+    <div id="timer"></div>
+
     <script>
       const onLoadFunc = () => {
         const video = document.getElementById("video");
@@ -51,6 +53,30 @@
 
         document.getElementById("enterPip").addEventListener("click", enterPip);
       };
+
+      let pipWindow = null;
+
+      async function enterPiP() {
+        const timer = document.querySelector("#timer");
+        timerContainer = timer.parentNode;
+        timerContainer.classList.add("pip");
+
+        const pipOptions = {
+          initialAspectRatio: timer.clientWidth / timer.clientHeight,
+          lockAspectRatio: true,
+          copyStyleSheets: true,
+        };
+
+        pipWindow = await documentPictureInPicture.requestWindow(pipOptions);
+        
+        // Add timer to the PiP window.
+        pipWindow.document.body.append(timer);
+
+        // Listen for the PiP closing event to put the timer back.
+        pipWindow.addEventListener("unload", onLeavePiP.bind(pipWindow), {
+          once: true,
+        });
+      }
     </script>
   </body>
 </html>
