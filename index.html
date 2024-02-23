@@ -20,11 +20,12 @@
       enter in canvas
     </button>
 
-    <button id="enterPip" onclick="drawVideoInCanvas()">enter in canvas</button>
+    <button id="enterPip" onclick="enterPiP()">enter pip in canvas</button>
 
     <div id="timer"></div>
 
     <script>
+      const timers = document.querySelector("#video");
       const onLoadFunc = () => {
         const video = document.getElementById("video");
         const canvas = document.getElementById("canvas");
@@ -41,11 +42,22 @@
           });
         };
 
-        const enterPip = async () => {
-          const pipWindow =
-            await window.documentPictureInPicture.requestWindow();
+        async function enterPiP() {
+          const pipOptions = {
+            initialAspectRatio: 100 / 100,
+            lockAspectRatio: true,
+            copyStyleSheets: true,
+          };
+
+          pipWindow = await fn(pipOptions, timers);
+
           console.log(pipWindow, "pipWindow");
-        };
+          if (pipWindow) {
+            pipWindow.addEventListener("unload", onLeavePiP.bind(pipWindow), {
+              once: true,
+            });
+          }
+        }
 
         document
           .getElementById("enterCanvas")
@@ -55,6 +67,17 @@
       };
 
       let pipWindow = null;
+      let timerContainer = null;
+
+      const fn = async (pipOptions, timers) => {
+        if ("documentPictureInPicture" in window) {
+          const pipWindow = await documentPictureInPicture?.requestWindow(
+            pipOptions
+          );
+          pipWindow?.document.body.append(timers);
+          return pipWindow;
+        }
+      };
 
       async function enterPiP() {
         const timer = document.querySelector("#timer");
@@ -67,15 +90,18 @@
           copyStyleSheets: true,
         };
 
-        pipWindow = await documentPictureInPicture.requestWindow(pipOptions);
-        
+        pipWindow = await fn(pipOptions, timers);
+        console.log(pipWindow, "pipWindow");
+
         // Add timer to the PiP window.
         pipWindow.document.body.append(timer);
 
         // Listen for the PiP closing event to put the timer back.
-        pipWindow.addEventListener("unload", onLeavePiP.bind(pipWindow), {
-          once: true,
-        });
+        if (pipWindow) {
+          pipWindow.addEventListener("unload", onLeavePiP.bind(pipWindow), {
+            once: true,
+          });
+        }
       }
     </script>
   </body>
