@@ -20,7 +20,7 @@
       enter in canvas
     </button>
 
-    <button id="enterPip" onclick="enterPiP()">enter pip in canvas</button>
+    <button id="pip_button" onclick="enterPiP()">enter pip in canvas</button>
 
     <div id="timer"></div>
 
@@ -59,11 +59,34 @@
           }
         }
 
+        // Called when the PiP window has closed.
+        function onLeavePiP() {
+          if (this !== pipWindow) {
+            return;
+          }
+
+          // Add the timer back to the main window.
+          const timer = pipWindow.document.querySelector("#timer");
+          timerContainer.append(timer);
+          timerContainer.classList.remove("pip");
+          pipWindow.close();
+
+          pipWindow = null;
+          timerContainer = null;
+        }
+
         document
           .getElementById("enterCanvas")
           .addEventListener("click", drawVideoInCanvas);
 
-        document.getElementById("enterPip").addEventListener("click", enterPip);
+        // document.getElementById("enterPip").addEventListener("click", enterPip);
+        document.getElementById("pip_button").addEventListener("click", () => {
+          if (!pipWindow) {
+            enterPiP();
+          } else {
+            onLeavePiP.bind(pipWindow)();
+          }
+        });
       };
 
       let pipWindow = null;
@@ -95,13 +118,6 @@
 
         // Add timer to the PiP window.
         pipWindow.document.body.append(timer);
-
-        // Listen for the PiP closing event to put the timer back.
-        if (pipWindow) {
-          pipWindow.addEventListener("unload", onLeavePiP.bind(pipWindow), {
-            once: true,
-          });
-        }
       }
     </script>
   </body>
