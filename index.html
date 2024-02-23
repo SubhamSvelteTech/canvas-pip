@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body onload="onLoadFunc()">
+    <div>
+      <p>Video Stream</p>
+      <video id="video" src="./mov_bbb.mp4" autoplay muted loop></video>
+    </div>
+
+    <div>
+      <p>Canvas</p>
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <button id="enterCanvas" onclick="drawVideoInCanvas()">
+      enter in canvas
+    </button>
+
+    <button id="enterPip" onclick="drawVideoInCanvas()">enter in canvas</button>
+
+    <script>
+      const onLoadFunc = () => {
+        const video = document.getElementById("video");
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+
+        const drawVideoInCanvas = () => {
+          video.play().then(() => {
+            const drawFrame = () => {
+              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+              requestAnimationFrame(drawFrame);
+            };
+
+            drawFrame();
+          });
+        };
+
+        const enterPip = async () => {
+          const pipWindow =
+            await window.documentPictureInPicture.requestWindow();
+          console.log(pipWindow, "pipWindow");
+        };
+
+        document
+          .getElementById("enterCanvas")
+          .addEventListener("click", drawVideoInCanvas);
+
+        document.getElementById("enterPip").addEventListener("click", enterPip);
+      };
+    </script>
+  </body>
+</html>
